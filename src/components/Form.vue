@@ -6,32 +6,31 @@
       </label>
       <button type="submit">Search</button>
     </form>
-    <Items :items="items"></Items>
+    <Photos :requesting="requesting" :error="error" :items="photos"></Photos>
   </div>
 </template>
 
 <script>
-import Items from "./Items.vue";
+import Photos from "./Photos.vue";
+import { mapState } from "vuex";
+
 export default {
   name: "Form",
   data: function() {
     return {
-      items: [],
       key: ""
     };
   },
-  components: { Items },
+  components: { Photos },
+  computed: mapState({
+    photos: state => state.photos.data,
+    requesting: state => state.photos.requesting,
+    error: state => state.photos.error
+  }),
   methods: {
     onSubmit: function(e) {
       e.preventDefault();
-      fetch(`https://images-api.nasa.gov/search?q=${this.key}&page=1`)
-        .then(response => {
-          return response.json();
-        })
-        .then(data => {
-          console.log(data);
-          this.items = data.collection.items;
-        });
+      this.$store.dispatch("photos/loadPhotos", this.key);
     }
   }
 };
